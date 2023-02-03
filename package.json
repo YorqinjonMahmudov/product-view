@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@kouts/vue-modal": "^2.1.11",
     "axios": "^1.2.6",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6",
