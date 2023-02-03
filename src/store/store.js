@@ -27,13 +27,7 @@ export default new Vuex.Store({
             axios.get("http://94.158.54.194:9092/api/product/get-product-types").then(response => {
                 commit("SET_PRODUCT_TYPES", response.data)
             })
-        },
-        addProduct({commit, product}) {
-            axios.post("http://94.158.54.194:9092/api/product", product).then(response => {
-                console.log(response);
-                // commit("ADD_PRODUCT")
-            }).catch(error => console.log(error))
-        },
+        }
 
     }
 })

@@ -8,6 +8,7 @@
   <br>
   <table border="1px">
     <tr>
+      <th>id</th>
       <th>name</th>
       <th>cost</th>
       <th>address</th>
@@ -17,6 +18,7 @@
     </tr>
 
     <tr v-for="product in products">
+      <td> <span> {{product.id}}</span></td>
       <td><span>{{ product.name_uz }}</span></td>
       <td><span>{{ product.cost }}</span></td>
       <td><span>{{ product.address }}</span></td>
@@ -28,7 +30,9 @@
             }}</span>
       </td>
       <td class="action edit">
-        <button @click="setCurrentProduct(product.id)" style="  background-color: yellow ">
+        <button v-if="product.id%2===0" @click="setCurrentProduct(product.id)" style="  background-color: yellow ">
+          Edit
+        </button> <button v-else @click="setCurrentProduct(product.id)" style="  background-color: green ">
           Edit
         </button>
       </td>
@@ -38,6 +42,9 @@
     </tr>
 
   </table>
+
+  <ProductOne :product="products[0]" />
+
 
 
   <div class="modal" v-if="showModal">
@@ -115,9 +122,11 @@
 <script>
 import axios from "axios";
 import store from "@/store/store";
+import ProductOne from "@/views/ProductOneView.vue";
 
 export default {
   name: 'Product',
+  components: {ProductOne},
   props: {
     msg: String
   },
@@ -128,7 +137,7 @@ export default {
       currentProduct: {},
       showModal: false,
       created_date: null,
-      selected_product_type: {}
+      selected_product_type: {},
     }
   },
   methods: {
@@ -144,6 +153,7 @@ export default {
     cancel() {
       this.showModal = false;
       this.currentProduct = {};
+      store.dispatch("setProducts")
     },
 
     showModalForAdd() {
@@ -152,20 +162,28 @@ export default {
       this.setProductTypes()
     },
     add() {
-      const store = this.$store;
+      this.currentProduct.created_date = this.created_date
+      this.currentProduct.product_type_id = this.productTypes.find(productType => productType.name_uz === this.selected_product_type)?.id
       console.log(this.currentProduct);
-      store.dispatch("addProduct", this.currentProduct);
+      axios.post("http://94.158.54.194:9092/api/product", this.currentProduct).then(response => {
+        console.log(response);
+        if (response.status === 200) {
+          this.showModal = false;
+          store.dispatch('setProducts')
+          this.currentProduct = {}
+          this.created_date = {}
+          this.selected_product_type = {}
+        }
+      }).catch(error => console.log(error))
     },
 
     setProductTypes() {
       store.dispatch("setProductTypes");
       this.productTypes = store.state.productTypes;
     },
-
     edit() {
       this.currentProduct.created_date = this.created_date
-      let product_type = this.productTypes.find(productType => productType.name_uz === this.selected_product_type);
-      this.currentProduct.product_type_id = product_type?.id ? product_type.id : 0
+      this.currentProduct.product_type_id = this.productTypes.find(productType => productType.name_uz === this.selected_product_type)?.id
       axios.put("http://94.158.54.194:9092/api/product", this.currentProduct)
           .then(response => {
             if (response.status === 200) {
@@ -175,7 +193,6 @@ export default {
             }
           }).catch(error => console.log(error))
     },
-
     deleteProduct(id) {
       axios.delete("http://94.158.54.194:9092/api/product/" + id).then(() => {
         store.dispatch('setProducts')
