@@ -1,4 +1,7 @@
-# product front
+# product front page
+
+It is a project that is written in vue js with vuex and vue router to learn them.
+
 
 This template should help get you started developing with Vue 3 in Vite.
 
